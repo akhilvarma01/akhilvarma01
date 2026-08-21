@@ -13,9 +13,19 @@ import { createRequire } from 'node:module';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// sharp lives in the sibling work project; borrowing it keeps this repo clean.
-const require = createRequire('/Users/akhilalluri/elastic-admin-payload/');
-const sharp = require('sharp');
+// sharp is resolved from wherever the caller points SHARP_FROM, so no local
+// path — and no private repository name — is baked into a public file.
+//   SHARP_FROM=/path/to/a/project/with/sharp node scripts/photo-to-ascii.mjs img.jpg
+const require = createRequire(process.env.SHARP_FROM ?? import.meta.url);
+let sharp;
+try {
+  sharp = require('sharp');
+} catch {
+  console.error('sharp not found. Either install it here (npm i sharp) or point\n' +
+    'SHARP_FROM at a project that already has it:\n' +
+    '  SHARP_FROM=/path/to/project/ node scripts/photo-to-ascii.mjs <image>');
+  process.exit(1);
+}
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 // Block glyphs tile edge-to-edge, so tonal areas read as solid regions
