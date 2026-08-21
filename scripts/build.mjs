@@ -16,10 +16,12 @@ const ASSETS = join(ROOT, 'assets');
 /* ------------------------------------------------------------------ config */
 
 const IDENTITY = {
-  first: 'AKHIL',
-  last: 'VARMA',
+  // Split across two lines: the full name at a readable weight is wider than
+  // the 316px column left beside the portrait.
+  l1: 'AKHIL VARMA',
+  l2: 'ALLURI',
   role: 'full-stack engineer',
-  blurb: 'i build admin & commerce platforms',
+  blurb: 'Building admin and commerce platforms',
 };
 
 const MONO = `ui-monospace,'SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace`;
@@ -282,12 +284,12 @@ function buildHero() {
     );
   };
 
-  line('t1', tx, 150, IDENTITY.first, 46, C.text, 700, 1.5, 0.7, 7);
-  line('t2', tx, 202, IDENTITY.last, 46, C.text, 700, 2.2, 0.7, 7);
-  line('t3', tx, 258, IDENTITY.role, 15, C.cyan, 400, 3.0, 0.6, 2.5);
-  line('t4', tx, 300, IDENTITY.blurb, 13, C.dim, 400, 3.6, 0.8);
+  line('t1', tx, 178, IDENTITY.l1, 36, C.text, 700, 1.5, 0.7, 4);
+  line('t2', tx, 222, IDENTITY.l2, 36, C.text, 700, 2.1, 0.5, 4);
+  line('t3', tx, 276, IDENTITY.role, 14, C.cyan, 400, 2.9, 0.6, 2);
+  line('t4', tx, 304, IDENTITY.blurb, 12, C.dim, 400, 3.5, 0.9);
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${MONO}" role="img" aria-label="${esc(IDENTITY.first)} ${esc(IDENTITY.last)} — ${esc(IDENTITY.role)}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${MONO}" role="img" aria-label="${esc(IDENTITY.l1)} ${esc(IDENTITY.l2)} — ${esc(IDENTITY.role)}, ${esc(IDENTITY.blurb)}">
 <defs>
 ${clipDefs}
 <linearGradient id="rule" x1="0" x2="1">
@@ -315,7 +317,7 @@ ${clipDefs}
   @keyframes blinkS { 0%,92.4%,96.1%,100% { visibility: hidden } 92.5%,96% { visibility: visible } }
   .caret { animation: blink 1.05s steps(1) infinite 4.4s; }
   @keyframes blink { 50% { opacity: 0 } }
-  .rule { stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw 1s ease-out forwards 2.9s; }
+  .rule { stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw 1s ease-out forwards 2.6s; }
   @keyframes draw { to { stroke-dashoffset: 0 } }
 </style>
 <rect width="${W}" height="${H}" rx="14" fill="${C.bg}"/>
@@ -324,9 +326,9 @@ ${clipDefs}
 ${glyphs.join('\n')}
 <g class="eo">${eyeOpen.join('\n')}</g>
 <g class="es">${shut.join('\n')}</g>
-<line x1="${tx}" y1="228" x2="${tx + 300}" y2="228" stroke="url(#rule)" stroke-width="1.5" class="rule"/>
+<line x1="${tx}" y1="248" x2="${tx + 300}" y2="248" stroke="url(#rule)" stroke-width="1.5" class="rule"/>
 ${typed.join('\n')}
-<rect x="${tx}" y="318" width="8" height="16" fill="${C.green}" class="caret"/>
+<rect x="${tx}" y="324" width="8" height="15" fill="${C.green}" class="caret"/>
 <text x="${W - 26}" y="${H - 20}" font-size="10.5" fill="${C.dim}" text-anchor="end" letter-spacing="1.6">github.com/akhilvarma01</text>
 </svg>
 `;
@@ -457,12 +459,103 @@ function buildButton({ label, tone, w }) {
 `;
 }
 
+/* ------------------------------------------------------------- tech stack */
+
+// Clicking a category expands its panel. Both halves are drawn as SVG because
+// GitHub strips CSS from markdown — a <summary> cannot be styled, but it will
+// render an <img> happily.
+const STACK = {
+  frontend: {
+    label: 'FRONTEND', tone: 'cyan',
+    items: [
+      ['TypeScript',      92, 'daily'],
+      ['React / Next.js', 88, 'daily'],
+      ['Tailwind CSS',    64, 'weekly'],
+      ['Playwright',      52, 'weekly'],
+    ],
+  },
+  backend: {
+    label: 'BACKEND', tone: 'purple',
+    items: [
+      ['Node.js',      86, 'daily'],
+      ['Payload CMS',  84, 'daily'],
+      ['REST / GraphQL', 70, 'weekly'],
+      ['Jest',         58, 'weekly'],
+    ],
+  },
+  data: {
+    label: 'DATA', tone: 'green',
+    items: [
+      ['PostgreSQL', 78, 'daily'],
+      ['MongoDB',    54, 'occasional'],
+      ['Redis',      42, 'occasional'],
+    ],
+  },
+  ship: {
+    label: 'SHIP', tone: 'amber',
+    items: [
+      ['Docker',         66, 'weekly'],
+      ['GitHub Actions', 62, 'weekly'],
+      ['Vercel',         55, 'weekly'],
+      ['Sentry',         48, 'weekly'],
+    ],
+  },
+};
+
+const TONE = {
+  cyan:   { fg: C.cyan,   bd: '#1f4f55' },
+  purple: { fg: C.purple, bd: '#3d2d5c' },
+  green:  { fg: C.green,  bd: '#1f4d2b' },
+  amber:  { fg: C.amber,  bd: '#5c4416' },
+};
+
+function buildStackButton({ label, tone, items }) {
+  const t = TONE[tone], FS = 13, H = 42;
+  const W = Math.round(label.length * FS * 0.62 + 96);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label} stack, ${items.length} tools">
+<style>text{font-family:${MONO}} .c{animation:p 2.8s ease-in-out infinite} @keyframes p{0%,100%{opacity:.5}50%{opacity:1}}</style>
+<rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="8" fill="${C.surfaceBtn}" stroke="${t.bd}"/>
+<text x="16" y="${H / 2 + 5}" font-size="${FS}" fill="${t.fg}" class="c">\u25b8</text>
+<text x="33" y="${H / 2 + 5}" font-size="${FS}" fill="${t.fg}" letter-spacing="1.6" font-weight="600">${label}</text>
+<text x="${W - 16}" y="${H / 2 + 5}" font-size="11" fill="${C.dim}" text-anchor="end">${items.length}</text>
+</svg>
+`;
+}
+
+function buildStackPanel({ label, tone, items }) {
+  const t = TONE[tone];
+  const W = 660, ROW = 34, PAD = 22;
+  const H = PAD * 2 + items.length * ROW;
+  let o = '';
+  items.forEach(([name, pct, cadence], i) => {
+    const y = PAD + 22 + i * ROW;
+    const bw = 300, bx = 210;
+    const fill = (pct / 100) * bw;
+    o += `<text x="${PAD}" y="${y}" font-size="12.5" fill="${C.text}">${esc(name)}</text>`;
+    o += `<rect x="${bx}" y="${y - 8}" width="${bw}" height="7" rx="3.5" fill="${C.surfaceBtn}"/>`;
+    o += `<rect x="${bx}" y="${y - 8}" width="0" height="7" rx="3.5" fill="${t.fg}">` +
+         `<animate attributeName="width" from="0" to="${fill.toFixed(1)}" dur="0.8s" ` +
+         `begin="${(0.1 + i * 0.09).toFixed(2)}s" fill="freeze" calcMode="spline" ` +
+         `keySplines="0.2 0.8 0.3 1" keyTimes="0;1" values="0;${fill.toFixed(1)}"/></rect>`;
+    o += `<text x="${bx + bw + 14}" y="${y}" font-size="11" fill="${C.dim}">${esc(cadence)}</text>`;
+  });
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label} tools">
+<style>text{font-family:${MONO}}</style>
+<rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="9" fill="${C.bg}" stroke="${C.line ?? C.border}"/>
+${o}
+</svg>
+`;
+}
+
 /* ------------------------------------------------------------------- main */
 
 if (!existsSync(ASSETS)) mkdirSync(ASSETS, { recursive: true });
 
-const out = { 'hero.svg': buildHero(), 'terminal.svg': buildTerminal() };
-for (const [id, cfg] of Object.entries(BUTTONS)) out[`btn-${id}.svg`] = buildButton(cfg);
+const out = { 'hero.svg': buildHero() };
+for (const [id, cfg] of Object.entries(STACK)) {
+  out[`stack-${id}.svg`] = buildStackButton(cfg);
+  out[`stack-${id}-panel.svg`] = buildStackPanel(cfg);
+}
 for (const [name, svg] of Object.entries(out)) {
   writeFileSync(join(ASSETS, name), svg);
   console.log(`  ${name.padEnd(14)} ${(svg.length / 1024).toFixed(1)} kB`);
