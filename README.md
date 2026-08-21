@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/hero.svg" width="880" alt="Akhil Varma Alluri — full-stack engineer, building admin and commerce platforms">
+<img src="assets/hero.svg" width="880" alt="Akhil Varma Alluri — front-end engineer, building admin and commerce platforms">
 
 [![Location](https://img.shields.io/badge/St%20Louis,%20MO-161b22?style=flat-square&logo=googlemaps&logoColor=39d0d8)](#)
 [![Elastic Suite](https://img.shields.io/badge/Elastic%20Suite%20@%20Emeraldx-161b22?style=flat-square&logo=briefcase&logoColor=bc8cff)](#)

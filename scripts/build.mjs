@@ -20,7 +20,7 @@ const IDENTITY = {
   // the 316px column left beside the portrait.
   l1: 'AKHIL VARMA',
   l2: 'ALLURI',
-  role: 'full-stack engineer',
+  role: 'front-end engineer',
   blurb: 'Building admin and commerce platforms',
 };
 
