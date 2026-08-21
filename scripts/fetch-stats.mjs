@@ -78,14 +78,15 @@ if (body.errors) {
 const u = body.data.user;
 const cc = u.contributionsCollection;
 
-// restrictedContributionsCount is every private contribution, not only
-// commits, so the two are kept apart rather than summed into one "commits"
-// figure that would be mislabelled.
-const publicCommits = cc.totalCommitContributions;
-const privateAll = cc.restrictedContributionsCount;
-const commits = publicCommits + privateAll;
+// restrictedContributionsCount counts contributions the VIEWER cannot see.
+// Because this token belongs to the user, their own private repositories are
+// visible to them, so that work lands in totalCommitContributions and this
+// figure is correctly 0. It is not evidence that private work is missing —
+// the opposite: private contributions are already included above.
+const restricted = cc.restrictedContributionsCount;
+const commits = cc.totalCommitContributions + restricted;
 const prs = cc.totalPullRequestContributions;
-const total = cc.contributionCalendar.totalContributions + privateAll;
+const total = cc.contributionCalendar.totalContributions + restricted;
 const reviews = cc.totalPullRequestReviewContributions;
 const issues = cc.totalIssueContributions;
 const stars = u.repositories.nodes.reduce((n, r) => n + r.stargazerCount, 0);
@@ -101,18 +102,20 @@ for (const d of days) {
   if (run > streak) streak = run;
 }
 
-if (cc.restrictedContributionsCount === 0) {
+// A zero here is normal and expected — see the note above. What would
+// actually signal a problem is a total that looks far too low, which usually
+// means commits were authored with an email not linked to the account.
+if (total < 50) {
   console.warn(
-    '\n⚠ restrictedContributionsCount is 0.\n' +
-    '  Either there genuinely are no private contributions, or the profile\n' +
-    '  setting "Include private contributions on my profile" is off.\n' +
-    '  Settings → Public profile → Contributions.\n'
+    '\n⚠ Only ' + total + ' contributions found in 12 months.\n' +
+    '  If that seems low, commits were probably authored with an email that\n' +
+    '  is not linked to this GitHub account. Settings → Emails.\n'
   );
 }
 
 const pct = (n, cap) => Math.max(0, Math.min(100, Math.round((n / cap) * 100)));
 const K = CFG.caps;
-const raw = { total, commits, publicCommits, privateAll, prs, reviews, issues, streak, stars, followers, range, accountYears };
+const raw = { total, commits, restricted, prs, reviews, issues, streak, stars, followers, range, accountYears };
 
 const C = { cyan: '#39d0d8', green: '#3fb950', amber: '#d29922', purple: '#bc8cff' };
 const n = (v) => v.toLocaleString('en-US');
@@ -125,7 +128,7 @@ const stats = {
   syncedAt: new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC',
   source: 'source: GraphQL contributionsCollection (incl. private)',
   stats: [
-    { label: 'SHIP',   value: pct(commits, K.commits), from: `${n(commits)} commits · ${n(privateAll)} in private repos`, color: C.cyan },
+    { label: 'SHIP',   value: pct(commits, K.commits), from: `${n(commits)} commits, public and private`, color: C.cyan },
     { label: 'REVIEW', value: pct(reviews, K.reviews), from: `${n(reviews)} pull requests reviewed`,        color: C.cyan },
     { label: 'PRS',    value: pct(prs, K.prs),         from: `${n(prs)} pull requests opened`,              color: C.cyan },
     { label: 'STREAK', value: pct(streak, K.streak),   from: `${streak}-day longest streak`,                color: C.green },
