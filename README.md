@@ -4,10 +4,11 @@
 
 <br>
 
-[![Email](https://img.shields.io/badge/Email-c9d1d9?style=flat-square&logo=gmail&logoColor=0d1117)](mailto:akhilvarma01@gmail.com)
-[![GitHub](https://img.shields.io/badge/GitHub-161b22?style=flat-square&logo=github&logoColor=c9d1d9)](https://github.com/akhilvarma01)
+[![Location](https://img.shields.io/badge/St%20Louis,%20MO-161b22?style=flat-square&logo=googlemaps&logoColor=39d0d8)](#)
+[![Elastic Suite](https://img.shields.io/badge/Elastic%20Suite%20@%20Emeraldx-161b22?style=flat-square&logo=briefcase&logoColor=bc8cff)](#)
 
-<!-- Add when you have the URLs:
+<!-- Deliberately no mailto: a public README is scraped for addresses.
+     Add these when you have the URLs:
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0a66c2?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/YOUR-HANDLE)
 [![Portfolio](https://img.shields.io/badge/Portfolio-bc8cff?style=flat-square&logo=vercel&logoColor=white)](https://YOUR-SITE.com)
 -->
