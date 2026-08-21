@@ -17,22 +17,28 @@ export default {
     { name: 'Docker', pct: 38 },
   ],
 
-  // Where each attribute's bar hits 100. Set these to what a strong year looks
-  // like for you; anything above simply pins the bar rather than overflowing.
+  // Where each bar hits 100%. These are calibrated against your first real
+  // sync (144 commits, 181 reviews, 8-day streak, 6 repos), not against some
+  // imagined engineer — the previous values were guesses and left four bars
+  // nearly empty. A full bar means "a strong year by your own standard"; the
+  // caption under each one always prints the raw count, so the honest number
+  // is on the page regardless of where the cap sits.
   caps: {
-    commits: 2000,
-    reviews: 300,
-    issues: 400,
-    streak: 60,
-    reach: 250,      // followers + stars
-    range: 20,       // repositories contributed to
+    commits: 300,
+    reviews: 250,
+    prs: 200,
+    streak: 30,
+    reach: 10,       // followers + stars, genuinely low and left that way
+    range: 12,       // repositories contributed to
   },
 
+  // Thresholds you can actually cross. Milestones nobody reaches are just
+  // five padlocks in a row.
   achievements: [
     { icon: '🌱', label: 'Account 8 years old', when: (s) => s.accountYears >= 8, color: '#3fb950' },
-    { icon: '🔥', label: '30-day streak',       when: (s) => s.streak >= 30,      color: '#d29922' },
-    { icon: '🛠', label: '1000 commits',        when: (s) => s.commits >= 1000,   color: '#bc8cff' },
     { icon: '👀', label: '100 reviews',         when: (s) => s.reviews >= 100,    color: '#39d0d8' },
+    { icon: '📈', label: '500 contributions',   when: (s) => s.total >= 500,      color: '#bc8cff' },
+    { icon: '🔥', label: '7-day streak',        when: (s) => s.streak >= 7,       color: '#d29922' },
     { icon: '⭐', label: 'First star',           when: (s) => s.stars >= 1,        color: '#d29922' },
   ],
 };

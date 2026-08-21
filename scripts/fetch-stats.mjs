@@ -32,6 +32,7 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
     contributionsCollection(from: $from, to: $to) {
       totalCommitContributions
       restrictedContributionsCount
+      totalPullRequestContributions
       totalPullRequestReviewContributions
       totalIssueContributions
       totalRepositoriesWithContributedCommits
@@ -77,8 +78,14 @@ if (body.errors) {
 const u = body.data.user;
 const cc = u.contributionsCollection;
 
-// Private commits arrive as a separate bucket; the public count excludes them.
-const commits = cc.totalCommitContributions + cc.restrictedContributionsCount;
+// restrictedContributionsCount is every private contribution, not only
+// commits, so the two are kept apart rather than summed into one "commits"
+// figure that would be mislabelled.
+const publicCommits = cc.totalCommitContributions;
+const privateAll = cc.restrictedContributionsCount;
+const commits = publicCommits + privateAll;
+const prs = cc.totalPullRequestContributions;
+const total = cc.contributionCalendar.totalContributions + privateAll;
 const reviews = cc.totalPullRequestReviewContributions;
 const issues = cc.totalIssueContributions;
 const stars = u.repositories.nodes.reduce((n, r) => n + r.stargazerCount, 0);
@@ -105,7 +112,7 @@ if (cc.restrictedContributionsCount === 0) {
 
 const pct = (n, cap) => Math.max(0, Math.min(100, Math.round((n / cap) * 100)));
 const K = CFG.caps;
-const raw = { commits, reviews, issues, streak, stars, followers, range, accountYears };
+const raw = { total, commits, publicCommits, privateAll, prs, reviews, issues, streak, stars, followers, range, accountYears };
 
 const C = { cyan: '#39d0d8', green: '#3fb950', amber: '#d29922', purple: '#bc8cff' };
 const n = (v) => v.toLocaleString('en-US');
@@ -114,16 +121,16 @@ const stats = {
   name: CFG.name,
   title: CFG.title,
   topLanguage: CFG.languages[0]?.name ?? 'TypeScript',
-  xp: cc.contributionCalendar.totalContributions + cc.restrictedContributionsCount,
+  xp: total,
   syncedAt: new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC',
   source: 'source: GraphQL contributionsCollection (incl. private)',
   stats: [
-    { label: 'SHIP',   value: pct(commits, K.commits), from: `${n(commits)} commits in the last 12 months`, color: C.cyan },
+    { label: 'SHIP',   value: pct(commits, K.commits), from: `${n(commits)} commits · ${n(privateAll)} in private repos`, color: C.cyan },
     { label: 'REVIEW', value: pct(reviews, K.reviews), from: `${n(reviews)} pull requests reviewed`,        color: C.cyan },
-    { label: 'DEBUG',  value: pct(issues, K.issues),   from: `${n(issues)} issues opened or closed`,        color: C.cyan },
+    { label: 'PRS',    value: pct(prs, K.prs),         from: `${n(prs)} pull requests opened`,              color: C.cyan },
     { label: 'STREAK', value: pct(streak, K.streak),   from: `${streak}-day longest streak`,                color: C.green },
-    { label: 'REACH',  value: pct(followers + stars, K.reach), from: `${n(followers)} followers · ${n(stars)} stars (public only)`, color: C.amber },
     { label: 'RANGE',  value: pct(range, K.range),     from: `${range} repositories contributed to`,        color: C.cyan },
+    { label: 'REACH',  value: pct(followers + stars, K.reach), from: `${n(followers)} followers · ${n(stars)} stars (public only)`, color: C.amber },
   ],
   languages: CFG.languages,
   achievements: CFG.achievements.map(({ icon, label, when, color }) => ({
