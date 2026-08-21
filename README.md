@@ -23,9 +23,14 @@
 
 <br>
 
+<!-- Stats section goes here once the nightly workflow has run once and
+     committed a real assets/character.svg. Referencing it before then would
+     render a broken-image icon on the profile.
+
 ## Stats
 
 <img src="assets/character.svg" width="880" alt="Character sheet — attributes computed nightly from GitHub contributions">
 
 <sub>Regenerated nightly by GitHub Actions. Commit, review and streak counts include private
 repository activity via <code>contributionsCollection</code> — counts only, never any source.</sub>
+-->
