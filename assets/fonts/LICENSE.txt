@@ -1,0 +1,10 @@
+Geist Mono
+Copyright (c) 2023 Vercel, Inc.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+The full license text is available at:
+https://openfontlicense.org
+
+Bundled here so the character sheet and stack panel render identically for
+every visitor rather than falling back to whatever monospace font the
+viewer's operating system happens to provide.

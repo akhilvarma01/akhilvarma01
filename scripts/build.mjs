@@ -26,6 +26,18 @@ const IDENTITY = {
 
 const MONO = `ui-monospace,'SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace`;
 
+// Geist Mono, inlined as a data URI. An SVG loaded through GitHub's camo proxy
+// cannot fetch an external font, so embedding is the only way to control the
+// typeface — and it removes a latent bug: glyph positions here are computed
+// from a fixed advance width, which only holds if every viewer gets the same
+// font instead of Consolas or Liberation Mono. Not used by the hero, whose
+// block glyphs (░▒▓█) are outside this subset.
+const FONT_B64 = readFileSync(join(ASSETS, 'fonts', 'geist-mono.woff2')).toString('base64');
+const FONT_FACE = `@font-face{font-family:'GeistMono';` +
+  `src:url(data:font/woff2;base64,${FONT_B64}) format('woff2');` +
+  `font-weight:100 900;font-style:normal;font-display:block}`;
+const MONO_EMBED = `'GeistMono',${MONO}`;
+
 // GitHub dark canvas. Painted explicitly so the panel reads the same on both
 // GitHub themes rather than borrowing whatever is behind it.
 const C = {
@@ -361,17 +373,22 @@ const STACK = [
 const TONE = { cyan: C.cyan, purple: C.purple, green: C.green, amber: C.amber };
 
 function buildStack() {
-  const W = 880, LH = 36, TOP = 46, LX = 34, TX = 168;
-  const H = TOP + (STACK.length - 1) * LH + 40;
+  const W = 880, LH = 34, TOP = 84, LX = 30, TX = 168;
+  const H = TOP + (STACK.length - 1) * LH + 28;
+  const tools = STACK.reduce((n, [, , it]) => n + it.length, 0);
 
-  let o = '';
+  // Title lives inside the panel rather than as a markdown ## heading, which
+  // GitHub styles as plain body text and which adds margin above and below.
+  let o = `<text x="${LX}" y="42" font-size="12" fill="${C.cyan}" letter-spacing="3.4" font-weight="600">STACK</text>`;
+  o += `<text x="${W - LX}" y="42" font-size="10.5" fill="${C.dim}" text-anchor="end" letter-spacing="1.2">${STACK.length} areas · ${tools} tools</text>`;
+  o += `<line x1="${LX}" y1="58" x2="${W - LX}" y2="58" stroke="${C.border}"/>`;
+
   STACK.forEach(([label, tone, items], i) => {
     const y = TOP + i * LH;
-    o += `<g class="ln" style="animation-delay:${(0.12 + i * 0.11).toFixed(2)}s">`;
+    o += `<g class="ln" style="animation-delay:${(0.12 + i * 0.1).toFixed(2)}s">`;
     o += `<text x="${LX}" y="${y}" font-size="11.5" fill="${TONE[tone]}" ` +
          `letter-spacing="2.2" font-weight="600">${label}</text>`;
 
-    // Tools flow on one line, separated by a dim interpunct.
     let x = TX;
     items.forEach((name, j) => {
       if (j) {
@@ -384,9 +401,10 @@ function buildStack() {
     o += `</g>`;
   });
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${MONO}" role="img" aria-label="Stack: ${STACK.map(([l, , it]) => `${l} — ${it.join(', ')}`).join('; ')}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${MONO_EMBED}" role="img" aria-label="Stack: ${STACK.map(([l, , it]) => `${l} — ${it.join(', ')}`).join('; ')}">
 <style>
-  text { font-family: ${MONO}; }
+  ${FONT_FACE}
+  text { font-family: ${MONO_EMBED}; }
   /* No opacity:0 at rest. If the animation never applies, the text still
      shows — the resting state must be the visible one. */
   .ln { animation: lineIn .5s ease-out both; }

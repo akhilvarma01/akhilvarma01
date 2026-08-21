@@ -12,6 +12,15 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const MONO = `ui-monospace,'SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace`;
 
+// Inlined for the same reason as in build.mjs: camo will not fetch an external
+// font, and every viewer should see the same typeface. Emoji in the
+// achievements row fall through to the system emoji font, which is intended.
+const FONT_B64 = readFileSync(join(ROOT, 'assets', 'fonts', 'geist-mono.woff2')).toString('base64');
+const FONT_FACE = `@font-face{font-family:'GeistMono';` +
+  `src:url(data:font/woff2;base64,${FONT_B64}) format('woff2');` +
+  `font-weight:100 900;font-style:normal;font-display:block}`;
+const MONO_EMBED = `'GeistMono',${MONO}`;
+
 const C = {
   bg: '#0d1117', panel: '#161b22', raised: '#1c2128',
   line: '#30363d', dim: '#6e7681', mute: '#8b949e', text: '#c9d1d9',
@@ -103,8 +112,8 @@ export function buildCharacter(S) {
   o += `<text x="34" y="${H - 20}" font-size="9.5" fill="${C.dim}">last sync ${esc(S.syncedAt)} · regenerated nightly by GitHub Actions</text>`;
   o += `<text x="${W - 34}" y="${H - 20}" font-size="9.5" fill="${C.dim}" text-anchor="end">${esc(S.source)}</text>`;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${MONO}" role="img" aria-label="RPG character sheet for ${esc(S.name)}, level ${lvl} ${esc(cls)}">
-<style>text{font-family:${MONO}}</style>
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${MONO_EMBED}" role="img" aria-label="RPG character sheet for ${esc(S.name)}, level ${lvl} ${esc(cls)}">
+<style>${FONT_FACE} text{font-family:${MONO_EMBED}}</style>
 <rect width="${W}" height="${H}" rx="14" fill="${C.bg}"/>
 <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="14" fill="none" stroke="${C.line}"/>
 ${o}
