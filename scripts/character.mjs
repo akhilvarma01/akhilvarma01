@@ -62,8 +62,19 @@ export function buildCharacter(S) {
   // ---- header ----------------------------------------------------------
   o += `<text x="34" y="46" font-size="11" fill="${C.cyan}" letter-spacing="3.2">CHARACTER SHEET</text>`;
   o += `<text x="34" y="80" font-size="26" fill="${C.text}" font-weight="700" letter-spacing="1.5">${esc(S.name)}</text>`;
-  o += `<text x="34" y="104" font-size="13" fill="${C.purple}" letter-spacing="1.4">${esc(cls)}</text>`;
-  o += `<text x="${34 + cls.length * 8.6}" y="104" font-size="13" fill="${C.dim}" letter-spacing="1.4"> · ${esc(S.title)}</text>`;
+  // Geist Mono advances at exactly 0.6em, so a run's width is length x
+  // (size x 0.6 + letter-spacing). The old code assumed 8.6px per character
+  // at 13px/1.4, which is 9.2 — the title crept left into the class name.
+  const runW = (text, size, ls = 0) => text.length * (size * 0.6 + ls);
+
+  // "RANK" labels the class so it reads as a game element rather than a
+  // stray adjective sitting next to the job title.
+  let cx = 34;
+  o += `<text x="${cx}" y="104" font-size="10" fill="${C.dim}" letter-spacing="2.4">RANK</text>`;
+  cx += runW('RANK', 10, 2.4) + 13;
+  o += `<text x="${cx.toFixed(1)}" y="104" font-size="13" fill="${C.purple}" letter-spacing="1.4">${esc(cls)}</text>`;
+  cx += runW(cls, 13, 1.4) + 9;
+  o += `<text x="${cx.toFixed(1)}" y="104" font-size="13" fill="${C.dim}" letter-spacing="1.4">· ${esc(S.title)}</text>`;
 
   // Level badge
   o += `<rect x="${W - 190}" y="30" width="156" height="58" rx="8" fill="${C.panel}" stroke="${C.line}"/>`;
