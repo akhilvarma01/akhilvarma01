@@ -19,7 +19,7 @@
 
 ## Stack
 
-<img src="assets/stack.svg" width="880" alt="Frontend: TypeScript, React/Next.js, Tailwind CSS, Playwright. Backend: Node.js, Payload CMS, REST/GraphQL, Jest. Data: PostgreSQL, MongoDB, Redis. Ship: Docker, GitHub Actions, Vercel, Sentry.">
+<img src="assets/stack.svg" width="880" alt="Frontend: HTML, CSS, JavaScript, TypeScript, React, Next.js, Tailwind, Playwright. Backend: Node.js, Express, Payload CMS, REST/GraphQL, Jest. Data: PostgreSQL, MongoDB, Redis. Ship: Docker, GitHub Actions, Vercel, Sentry.">
 
 <br>
 

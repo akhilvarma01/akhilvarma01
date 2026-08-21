@@ -463,8 +463,8 @@ function buildButton({ label, tone, w }) {
 
 // Four lines, one per area. No interaction, no arrows — just the list.
 const STACK = [
-  ['FRONTEND', 'cyan',   ['TypeScript', 'React / Next.js', 'Tailwind CSS', 'Playwright']],
-  ['BACKEND',  'purple', ['Node.js', 'Payload CMS', 'REST / GraphQL', 'Jest']],
+  ['FRONTEND', 'cyan',   ['HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Tailwind', 'Playwright']],
+  ['BACKEND',  'purple', ['Node.js', 'Express', 'Payload CMS', 'REST / GraphQL', 'Jest']],
   ['DATA',     'green',  ['PostgreSQL', 'MongoDB', 'Redis']],
   ['SHIP',     'amber',  ['Docker', 'GitHub Actions', 'Vercel', 'Sentry']],
 ];
