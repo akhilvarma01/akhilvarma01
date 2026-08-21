@@ -2,45 +2,45 @@
   "name": "AKHIL VARMA ALLURI",
   "title": "Application Developer, Elastic Suite",
   "topLanguage": "TypeScript",
-  "xp": 493,
-  "syncedAt": "2026-08-21 10:02 UTC",
+  "xp": 494,
+  "syncedAt": "2026-08-21 10:07 UTC",
   "source": "source: GraphQL contributionsCollection (incl. private)",
   "stats": [
     {
       "label": "SHIP",
-      "value": 7,
-      "from": "144 commits in the last 12 months",
+      "value": 48,
+      "from": "145 commits · 0 in private repos",
       "color": "#39d0d8"
     },
     {
       "label": "REVIEW",
-      "value": 60,
+      "value": 72,
       "from": "181 pull requests reviewed",
       "color": "#39d0d8"
     },
     {
-      "label": "DEBUG",
-      "value": 0,
-      "from": "0 issues opened or closed",
+      "label": "PRS",
+      "value": 83,
+      "from": "166 pull requests opened",
       "color": "#39d0d8"
     },
     {
       "label": "STREAK",
-      "value": 13,
+      "value": 27,
       "from": "8-day longest streak",
       "color": "#3fb950"
     },
     {
-      "label": "REACH",
-      "value": 1,
-      "from": "2 followers · 0 stars (public only)",
-      "color": "#d29922"
-    },
-    {
       "label": "RANGE",
-      "value": 30,
+      "value": 50,
       "from": "6 repositories contributed to",
       "color": "#39d0d8"
+    },
+    {
+      "label": "REACH",
+      "value": 20,
+      "from": "2 followers · 0 stars (public only)",
+      "color": "#d29922"
     }
   ],
   "languages": [
@@ -73,21 +73,21 @@
       "unlocked": true
     },
     {
-      "icon": "🔥",
-      "label": "30-day streak",
-      "color": "#d29922",
-      "unlocked": false
+      "icon": "👀",
+      "label": "100 reviews",
+      "color": "#39d0d8",
+      "unlocked": true
     },
     {
-      "icon": "🛠",
-      "label": "1000 commits",
+      "icon": "📈",
+      "label": "500 contributions",
       "color": "#bc8cff",
       "unlocked": false
     },
     {
-      "icon": "👀",
-      "label": "100 reviews",
-      "color": "#39d0d8",
+      "icon": "🔥",
+      "label": "7-day streak",
+      "color": "#d29922",
       "unlocked": true
     },
     {
@@ -98,7 +98,11 @@
     }
   ],
   "raw": {
-    "commits": 144,
+    "total": 494,
+    "commits": 145,
+    "publicCommits": 145,
+    "privateAll": 0,
+    "prs": 166,
     "reviews": 181,
     "issues": 0,
     "streak": 8,
