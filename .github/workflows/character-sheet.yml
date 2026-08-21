@@ -1,0 +1,45 @@
+name: character-sheet
+
+on:
+  schedule:
+    - cron: '0 3 * * *'      # 03:00 UTC nightly
+  workflow_dispatch:          # lets you trigger a run by hand
+
+# Only the write access needed to commit the regenerated sheet.
+permissions:
+  contents: write
+
+concurrency:
+  group: character-sheet
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # read:user token. Cannot list repos, read source, or clone.
+      - name: Fetch contribution counts
+        env:
+          STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+        run: node scripts/fetch-stats.mjs
+
+      - name: Render the sheet
+        run: node scripts/character.mjs
+
+      - name: Commit only if a number changed
+        run: |
+          git config user.name  'character-sheet bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/stats.json assets/character.svg
+          if git diff --staged --quiet; then
+            echo 'no change — nothing to commit'
+          else
+            git commit -m 'chore: nightly character sheet'
+            git push
+          fi
