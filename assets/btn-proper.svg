@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="273" height="38" viewBox="0 0 273 38" role="img" aria-label="roll back, fix it properly">
+<style>
+  text { font-family: ui-monospace,'SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace; }
+  .pulse { animation: p 2.6s ease-in-out infinite; }
+  @keyframes p { 0%,100% { opacity: .55 } 50% { opacity: 1 } }
+</style>
+<rect x="1" y="1" width="271" height="36" rx="7" fill="#161b22" stroke="#1f4d2b"/>
+<text x="17" y="24" font-size="13.5" fill="#3fb950" class="pulse">▸</text>
+<text x="34" y="24" font-size="13.5" fill="#3fb950">roll back, fix it properly</text>
+</svg>

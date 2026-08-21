@@ -20,23 +20,29 @@
 
 ## 🔴 3:47 AM — you are on call
 
-> **This is playable.** Every choice below is a real link you click. It runs
-> entirely inside GitHub's markdown renderer — no JavaScript, no server, no
-> Actions. Just deeply nested `<details>`, which turns out to be a perfectly
-> good state machine. Pick a branch and find out how it ends.
+**Click a button. It's a game.** Eight endings, three decisions deep. It runs
+inside GitHub's markdown renderer with no JavaScript, no server and no Actions —
+every button below is a nested `<details>`, which turns out to be a perfectly
+serviceable state machine.
+
+> 📟 **PAGERDUTY — SEV1**
+> `checkout-api` is returning 500s. Order success rate: **6%**.
+> Your phone has been buzzing for ninety seconds.
 
 <details>
-<summary><b>📟 PagerDuty is screaming. <code>checkout-api</code> is throwing 500s. Accept the page?</b></summary>
+<summary><img src="assets/btn-accept.svg" alt="Accept the page"></summary>
 
 <br>
 
-You accept. The dashboard is a wall of red. Orders are failing at 94%.
-Someone deployed 20 minutes ago. That someone was you.
+The dashboard is a wall of red. Orders are failing at 94%. Someone deployed
+20 minutes ago.
+
+That someone was you.
 
 <blockquote>
 
 <details>
-<summary>▸ <code>kubectl rollback</code> — undo first, ask questions later</summary>
+<summary><img src="assets/btn-rollback.svg" alt="kubectl rollback — undo first, ask questions later"></summary>
 
 <br>
 
@@ -46,7 +52,7 @@ a bug you can no longer reproduce.
 <blockquote>
 
 <details>
-<summary>▸ Go back to bed. Deal with it Monday.</summary>
+<summary><img src="assets/btn-bed.svg" alt="Go back to bed"></summary>
 
 <br>
 
@@ -60,7 +66,7 @@ what happened. Six weeks later it returns, worse, during Black Friday.
 </details>
 
 <details>
-<summary>▸ Pull the pod logs before they rotate.</summary>
+<summary><img src="assets/btn-podlogs.svg" alt="Pull the pod logs before they rotate"></summary>
 
 <br>
 
@@ -86,7 +92,7 @@ constraint, and ship it at 5 AM with a post-mortem nobody asked for.
 </details>
 
 <details>
-<summary>▸ Read the logs first — never fix what you don't understand</summary>
+<summary><img src="assets/btn-logs.svg" alt="Read the logs first"></summary>
 
 <br>
 
@@ -100,7 +106,7 @@ Every failing request touches the same code path. It's your deploy.
 <blockquote>
 
 <details>
-<summary>▸ Hotfix it live. <code>?.</code> on the undefined access, push to prod.</summary>
+<summary><img src="assets/btn-hotfix.svg" alt="Hotfix it live"></summary>
 
 <br>
 
@@ -118,7 +124,7 @@ It has a comment above it that says `// TODO: fix properly`.
 </details>
 
 <details>
-<summary>▸ Roll back, then fix it properly in the morning.</summary>
+<summary><img src="assets/btn-proper.svg" alt="Roll back, then fix it properly"></summary>
 
 <br>
 
@@ -136,7 +142,7 @@ constraint, and the regression test.
 </details>
 
 <details>
-<summary>▸ <code>DROP TABLE orders;</code> — no orders, no failing orders</summary>
+<summary><img src="assets/btn-drop.svg" alt="DROP TABLE orders;"></summary>
 
 <br>
 

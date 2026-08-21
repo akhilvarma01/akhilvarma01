@@ -36,11 +36,12 @@ const C = {
   cyan: '#39d0d8',
   purple: '#bc8cff',
   amber: '#d29922',
+  surfaceBtn: '#161b22',
 };
 
 // Density ramp, light -> heavy. Matches what a photo converter emits, so the
 // real portrait will drop in without changing the renderer.
-const RAMP = ' .:-=+*#%@';
+const RAMP = ' \u2591\u2591\u2592\u2592\u2593\u2593\u2588\u2588';
 
 /* ------------------------------------------------------- portrait sourcing */
 
@@ -127,14 +128,38 @@ function synthesizePortrait(cols, rows) {
 }
 
 function loadPortrait(cols, rows) {
-  const file = join(ASSETS, 'portrait.txt');
-  if (existsSync(file)) {
-    const lines = readFileSync(file, 'utf8').replace(/\n+$/, '').split('\n');
-    const w = Math.max(...lines.map((l) => l.length));
-    return lines.map((l) => l.padEnd(w, ' '));
-  }
-  return synthesizePortrait(cols, rows);
+  const json = join(ASSETS, 'portrait.json');
+  if (existsSync(json)) return JSON.parse(readFileSync(json, 'utf8'));
+  return { chars: synthesizePortrait(cols, rows), colors: null };
 }
+
+// The panel sits at luminance ~17, so image colours down to ~40 already read
+// against it. Lifting further only flattens hair and skin toward the same
+// brightness and washes the portrait out — so this floor stays low.
+function lift(hex, floor = 42) {
+  if (!hex) return C.dim;
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const k = l < floor ? floor / Math.max(l, 12) : 1;
+  const m = (v) => Math.min(255, Math.round(v * k)).toString(16).padStart(2, '0');
+  return `#${m(r)}${m(g)}${m(b)}`;
+}
+
+// The panel colour is known and fixed, so per-glyph opacity can be composited
+// into the fill at build time. Saves an attribute on every one of ~5000
+// glyphs, which is most of the hero's file size.
+const blend = (hex, op, onto = C.bg) => {
+  const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const [r, g, b] = p(hex), [br, bg, bb] = p(onto);
+  const m = (f, k) => Math.round(k + (f - k) * op).toString(16).padStart(2, '0');
+  return `#${m(r, br)}${m(g, bg)}${m(b, bb)}`;
+};
+
+const darken = (hex, k) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const m = (v) => Math.round(v * k).toString(16).padStart(2, '0');
+  return `#${m(r)}${m(g)}${m(b)}`;
+};
 
 const norm = (v) => {
   const m = Math.hypot(...v);
@@ -168,42 +193,75 @@ function rng(seed) {
 
 /* ------------------------------------------------------------------- hero */
 
-function buildHero() {
-  const COLS = 54, ROWS = 30;
-  const FS = 12, CW = 7.35, LH = 13.4;
-  const W = 880, H = 452;
-  const grid = loadPortrait(COLS, ROWS);
+// Cells inside these boxes get an alternate "closed" glyph, and the two layers
+// cross-fade to blink. Coordinates are grid cells, found by eye from the
+// converted portrait — see scripts/photo-to-ascii.mjs.
+const EYES = [
+  // Aperture only. Including the brow makes the shut frame read as a censor
+  // bar rather than an eyelid.
+  { c0: 26, c1: 42, r0: 31, r1: 33 },   // his left
+  { c0: 68, c1: 82, r0: 27, r1: 29 },   // his right, behind the fringe
+];
 
-  const px = 52, py = 40;              // portrait origin
+function buildHero() {
+  const FS = 7.4, CW = 4.2, LH = 7.7;
+  const W = 880;
+  const art = loadPortrait(54, 30);
+  const grid = art.chars;
+  const H = Math.max(452, grid.length * LH + 62);
+
+  const px = 44, py = 30;              // portrait origin
   const rand = rng(0xA47);
+
+  // Eye cells live in their own group: the blink toggles the group's
+  // visibility, so every glyph keeps its own fall delay without the two
+  // animations fighting over a single animation-delay value.
+  const glyphs = [], eyeOpen = [], shut = [];
+  const inEye = (c, r) => EYES.find((e) => c >= e.c0 && c <= e.c1 && r >= e.r0 && r <= e.r1);
 
   // Each glyph is its own <text> so it can fall independently. Spaces are
   // skipped entirely, which cuts the element count roughly in half.
-  const glyphs = [];
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[r].length; c++) {
       const ch = grid[r][c];
       if (ch === ' ') continue;
 
       const weight = RAMP.indexOf(ch) / (RAMP.length - 1);
-      // Hue drifts down the portrait, cyan at the crown to purple at the base.
       const t = r / grid.length;
-      const col = mixHex(C.cyan, C.purple, t);
-      const op = (0.35 + weight * 0.65).toFixed(2);
+      // Real image colour when we have it; the old gradient is the fallback
+      // for the synthesized bust.
+      const col = art.colors ? lift(art.colors[r][c]) : mixHex(C.cyan, C.purple, t);
+      const op = (art.colors ? 0.42 + weight * 0.58 : 0.35 + weight * 0.65).toFixed(2);
 
-      // Stagger by depth + a little jitter so it reads as rain, not a wipe.
+      const x = (px + c * CW).toFixed(1), y = (py + r * LH).toFixed(1);
       const delay = (0.15 + t * 0.9 + rand() * 0.55).toFixed(2);
-      const flicker = rand() < 0.045;
+      const flicker = rand() < 0.03;
 
-      glyphs.push(
-        `<text x="${(px + c * CW).toFixed(1)}" y="${(py + r * LH).toFixed(1)}" ` +
-        `fill="${col}" opacity="${op}" class="g${flicker ? ' fl' : ''}" ` +
-        `style="animation-delay:${delay}s${flicker ? `,${(2.4 + rand() * 5).toFixed(1)}s` : ''}">${esc(ch)}</text>`
+      const eye = inEye(c, r);
+      (eye ? eyeOpen : glyphs).push(
+        `<text x="${x}" y="${y}" fill="${blend(col, +op)}" class="g${flicker && !eye ? ' fl' : ''}" ` +
+        `style="animation-delay:${delay}s${flicker && !eye ? `,${(2.4 + rand() * 5).toFixed(1)}s` : ''}">${esc(ch)}</text>`
       );
+
+      // A shut eye is not a hole. Fill the socket with skin borrowed from two
+      // rows above the eye, then lay one darker row across it as the lash line
+      // — otherwise the blink punches the panel background through the face.
+      if (eye) {
+        const mid = Math.round((eye.r0 + eye.r1) / 2);
+        // Cheek, not brow: r0-2 lands on the eyebrow and tints the lid black.
+        const srcR = Math.min(grid.length - 1, eye.r1 + 2);
+        const isLid = r === mid;
+        const lidCh = isLid ? '▒' : (grid[srcR]?.[c] ?? ' ');
+        if (lidCh !== ' ') {
+          const base = art.colors ? art.colors[srcR]?.[c] : null;
+          const lidCol = isLid ? darken(lift(base), 0.62) : lift(base);
+          shut.push(`<text x="${x}" y="${y}" fill="${blend(lidCol, +op)}">${esc(lidCh)}</text>`);
+        }
+      }
     }
   }
 
-  const tx = 470;                       // right-hand text column
+  const tx = 530;                       // right-hand text column
   const typed = [];
   let clipDefs = '';
   // ls must be folded into the width: letter-spacing adds its value to every
@@ -249,6 +307,12 @@ ${clipDefs}
   .fl { animation-name: fall, flick; animation-duration: .62s, 4.5s; animation-iteration-count: 1, infinite; }
   @keyframes fall { from { opacity: 0; transform: translateY(-30px) } }
   @keyframes flick { 0%,94%,100% { opacity: .95 } 96% { opacity: .25 } 98% { opacity: 1 } }
+  /* Blink: the two eye layers swap visibility, which leaves each glyph's own
+     opacity attribute untouched. ~165ms shut every 5.4s. */
+  .eo { animation: blinkO 5.4s steps(1) infinite; }
+  .es { animation: blinkS 5.4s steps(1) infinite; }
+  @keyframes blinkO { 0%,92.4%,96.1%,100% { visibility: visible } 92.5%,96% { visibility: hidden } }
+  @keyframes blinkS { 0%,92.4%,96.1%,100% { visibility: hidden } 92.5%,96% { visibility: visible } }
   .caret { animation: blink 1.05s steps(1) infinite 4.4s; }
   @keyframes blink { 50% { opacity: 0 } }
   .rule { stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw 1s ease-out forwards 2.9s; }
@@ -258,6 +322,8 @@ ${clipDefs}
 <rect width="${W}" height="${H}" rx="14" fill="url(#glow)"/>
 <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="14" fill="none" stroke="${C.border}"/>
 ${glyphs.join('\n')}
+<g class="eo">${eyeOpen.join('\n')}</g>
+<g class="es">${shut.join('\n')}</g>
 <line x1="${tx}" y1="228" x2="${tx + 300}" y2="228" stroke="url(#rule)" stroke-width="1.5" class="rule"/>
 ${typed.join('\n')}
 <rect x="${tx}" y="318" width="8" height="16" fill="${C.green}" class="caret"/>
@@ -349,11 +415,54 @@ ${body}<rect x="${pad}" y="${cy - FS + 2}" width="8" height="${FS + 2}" fill="${
 `;
 }
 
+/* ---------------------------------------------------------- choice buttons */
+
+// GitHub strips CSS from markdown, so a <summary> cannot be styled into
+// looking clickable. It *will* render an <img> though — so each choice is a
+// drawn button, and clicking anywhere in the summary toggles it as usual.
+const BUTTONS = {
+  'accept':   { label: 'ACCEPT THE PAGE',            tone: 'red',  w: 250 },
+  'rollback': { label: 'kubectl rollback',           tone: 'cyan' },
+  'logs':     { label: 'read the logs first',        tone: 'cyan' },
+  'drop':     { label: 'DROP TABLE orders;',         tone: 'red' },
+  'bed':      { label: 'go back to bed',             tone: 'dim' },
+  'podlogs':  { label: 'pull the pod logs',          tone: 'cyan' },
+  'hotfix':   { label: 'hotfix it live',             tone: 'amber' },
+  'proper':   { label: 'roll back, fix it properly', tone: 'green' },
+};
+
+const TONES = {
+  cyan:  { fg: C.cyan,   bd: '#1f4f55' },
+  red:   { fg: '#ff7b72', bd: '#5c2b28' },
+  amber: { fg: C.amber,  bd: '#5c4416' },
+  green: { fg: C.green,  bd: '#1f4d2b' },
+  dim:   { fg: C.dim,    bd: '#2d333b' },
+};
+
+function buildButton({ label, tone, w }) {
+  const t = TONES[tone];
+  const FS = 13.5;
+  const width = w ?? Math.round(label.length * FS * 0.6 + 62);
+  const H = 38;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${H}" viewBox="0 0 ${width} ${H}" role="img" aria-label="${esc(label)}">
+<style>
+  text { font-family: ${MONO}; }
+  .pulse { animation: p 2.6s ease-in-out infinite; }
+  @keyframes p { 0%,100% { opacity: .55 } 50% { opacity: 1 } }
+</style>
+<rect x="1" y="1" width="${width - 2}" height="${H - 2}" rx="7" fill="${C.surfaceBtn}" stroke="${t.bd}"/>
+<text x="17" y="${H / 2 + 5}" font-size="${FS}" fill="${t.fg}" class="pulse">▸</text>
+<text x="34" y="${H / 2 + 5}" font-size="${FS}" fill="${t.fg}">${esc(label)}</text>
+</svg>
+`;
+}
+
 /* ------------------------------------------------------------------- main */
 
 if (!existsSync(ASSETS)) mkdirSync(ASSETS, { recursive: true });
 
 const out = { 'hero.svg': buildHero(), 'terminal.svg': buildTerminal() };
+for (const [id, cfg] of Object.entries(BUTTONS)) out[`btn-${id}.svg`] = buildButton(cfg);
 for (const [name, svg] of Object.entries(out)) {
   writeFileSync(join(ASSETS, name), svg);
   console.log(`  ${name.padEnd(14)} ${(svg.length / 1024).toFixed(1)} kB`);
