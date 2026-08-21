@@ -9,6 +9,8 @@
 
 <img src="assets/character.svg" width="880" alt="Character sheet — attributes computed nightly from GitHub contributions, including private repository activity">
 
+<img src="assets/board.svg" width="880" alt="Departures board — TS 001 TypeScript gate A1 boarding; RE 204 React/Next gate B7 on time; PL 340 Payload CMS gate A4 on time; PG 512 PostgreSQL gate C3 on time; DK 880 Docker gate D2 delayed; K8 999 Kubernetes cancelled">
+
 <sub>Regenerated nightly by GitHub Actions from <code>contributionsCollection</code>. Counts include
 work in private repositories — the aggregate only, never any source.</sub>
 

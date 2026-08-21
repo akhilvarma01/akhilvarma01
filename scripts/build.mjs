@@ -417,13 +417,114 @@ ${o}
 `;
 }
 
-/* ------------------------------------------------------------------- main */
+/* ---------------------------------------------------------- departure board */
 
-if (!existsSync(ASSETS)) mkdirSync(ASSETS, { recursive: true });
+// A Solari split-flap board. Each character cycles through a few glyphs before
+// settling, which is done by stacking one <text> per frame and handing each a
+// staggered CSS animation — SMIL cannot animate text content, and there is no
+// JavaScript available inside a README image.
+const BOARD = {
+  title: '\u2708 DEPARTURES',
+  cols: [
+    ['FLIGHT', 30], ['DESTINATION', 150], ['GATE', 470], ['STATUS', 580],
+  ],
+  rows: [
+    ['TS 001', 'TYPESCRIPT',   'A1', 'BOARDING', 'green'],
+    ['RE 204', 'REACT / NEXT', 'B7', 'ON TIME',  'amber'],
+    ['PL 340', 'PAYLOAD CMS',  'A4', 'ON TIME',  'amber'],
+    ['PG 512', 'POSTGRESQL',   'C3', 'ON TIME',  'amber'],
+    ['DK 880', 'DOCKER',       'D2', 'DELAYED',  'dim'],
+    ['K8 999', 'KUBERNETES',   '--', 'CANCELLED','red'],
+  ],
+};
+
+const FLAP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const BOARD_C = {
+  panel: '#08090b', flap: '#14161a', rule: '#242a30',
+  amber: '#e8b339', green: '#4ade80', red: '#f87171', dim: '#7d8590', head: '#5b636b',
+};
+
+function buildBoard() {
+  const W = 880, CW = 9.6, ROW = 34, FS = 14;
+  const TOP = 92, H = TOP + BOARD.rows.length * ROW + 34;
+
+  // Earlier versions stacked three throwaway glyphs per character and faded
+  // each out. Chrome dropped a whole band of those animations — every one
+  // whose delay fell around the moment the embedded font finished decoding —
+  // leaving junk letters frozen on the board permanently. So: exactly one
+  // animation per character, and every element's resting state is its final
+  // state. If an animation is dropped now, the character is simply there.
+  // The flap seam is drawn, not animated, which is what sells the mechanism.
+  const drop = (text, x0, y, fill, base) =>
+    [...text].map((ch, i) => ch === ' ' ? '' :
+      `<text x="${(x0 + i * CW).toFixed(1)}" y="${y}" font-size="${FS}" fill="${fill}" ` +
+      `class="k" style="animation-delay:${(base + i * 0.045).toFixed(3)}s">${esc(ch)}</text>`
+    ).join('');
+
+  let o = '';
+  o += `<text x="30" y="42" font-size="13" fill="${BOARD_C.amber}" letter-spacing="3.4" font-weight="600">${esc(BOARD.title)}</text>`;
+  o += `<text x="${W - 30}" y="42" font-size="10.5" fill="${BOARD_C.head}" text-anchor="end" letter-spacing="1.4">GITHUB INTL \u00b7 TERMINAL 1</text>`;
+  o += `<line x1="30" y1="58" x2="${W - 30}" y2="58" stroke="${BOARD_C.rule}"/>`;
+  for (const [label, x] of BOARD.cols) {
+    o += `<text x="${x}" y="78" font-size="10" fill="${BOARD_C.head}" letter-spacing="2.2">${label}</text>`;
+  }
+
+  BOARD.rows.forEach((r, i) => {
+    const y = TOP + 22 + i * ROW;
+    const base = 0.18 + i * 0.14;
+    const tone = { green: BOARD_C.green, amber: BOARD_C.amber, red: BOARD_C.red, dim: BOARD_C.dim }[r[4]];
+
+    o += `<rect x="30" y="${y - 19}" width="${W - 60}" height="26" rx="3" fill="${BOARD_C.flap}"/>`;
+    // Per-character flap seams: the horizontal split every Solari board has.
+    for (let c = 0; c < Math.floor((W - 60) / CW); c++) {
+      o += `<rect x="${(30 + c * CW).toFixed(1)}" y="${y - 6.5}" width="${(CW - 1.2).toFixed(1)}" height="1" fill="${BOARD_C.panel}"/>`;
+    }
+    o += drop(r[0], BOARD.cols[0][1], y, BOARD_C.amber, base);
+    o += drop(r[1], BOARD.cols[1][1], y, BOARD_C.amber, base + 0.05);
+    o += drop(r[2], BOARD.cols[2][1], y, BOARD_C.amber, base + 0.12);
+    o += drop(r[3], BOARD.cols[3][1], y, tone, base + 0.16);
+  });
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${MONO_EMBED}" role="img" aria-label="Departures board: ${BOARD.rows.map((r) => `${r[0]} ${r[1]} gate ${r[2]} ${r[3]}`).join('; ')}">
+<style>
+  ${FONT_FACE}
+  text { font-family: ${MONO_EMBED}; }
+  /* Animates FROM hidden with fill both: resting state is the visible, final
+     state, so a dropped animation costs the flap effect and nothing else. */
+  .k { animation: drop .22s cubic-bezier(.2,.9,.3,1) both; }
+  @keyframes drop { from { opacity: 0; transform: translateY(-7px) } }
+</style>
+<rect width="${W}" height="${H}" rx="12" fill="${BOARD_C.panel}"/>
+<rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="12" fill="none" stroke="${BOARD_C.rule}"/>
+${o}
+</svg>
+`;
+}
+
+// An SVG is XML, and a <style> block is not CDATA-wrapped here, so a raw "<"
+// or "&" anywhere inside it makes the whole file unparseable and the image
+// renders as a broken icon. Counting angle brackets does not catch this —
+// "<img>" inside a comment is perfectly balanced — so check the style blocks
+// themselves, which is where the mistake actually happens.
+function assertWellFormed(name, svg) {
+  for (const m of svg.matchAll(/<style>([\s\S]*?)<\/style>/g)) {
+    const body = m[1];
+    const bad = body.match(/<|&(?!(amp|lt|gt|quot|apos|#\d+);)/);
+    if (bad) {
+      const at = body.indexOf(bad[0]);
+      throw new Error(`${name}: raw "${bad[0]}" inside <style> near ` +
+        `"...${body.slice(Math.max(0, at - 40), at + 40).replace(/\s+/g, ' ')}..." — ` +
+        `this breaks XML parsing and the image will not render.`);
+    }
+  }
+  if (!svg.trimEnd().endsWith('</svg>')) throw new Error(`${name}: does not end with </svg>`);
+}
 
 const out = { 'hero.svg': buildHero() };
 out['stack.svg'] = buildStack();
+out['board.svg'] = buildBoard();
 for (const [name, svg] of Object.entries(out)) {
+  assertWellFormed(name, svg);
   writeFileSync(join(ASSETS, name), svg);
   console.log(`  ${name.padEnd(14)} ${(svg.length / 1024).toFixed(1)} kB`);
 }
