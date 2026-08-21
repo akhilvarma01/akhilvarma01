@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="152" height="42" viewBox="0 0 152 42" role="img" aria-label="BACKEND stack, 4 tools">
-<style>text{font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace} .c{animation:p 2.8s ease-in-out infinite} @keyframes p{0%,100%{opacity:.5}50%{opacity:1}}</style>
-<rect x="1" y="1" width="150" height="40" rx="8" fill="#161b22" stroke="#3d2d5c"/>
-<text x="16" y="26" font-size="13" fill="#bc8cff" class="c">▸</text>
-<text x="33" y="26" font-size="13" fill="#bc8cff" letter-spacing="1.6" font-weight="600">BACKEND</text>
-<text x="136" y="26" font-size="11" fill="#484f58" text-anchor="end">4</text>
-</svg>

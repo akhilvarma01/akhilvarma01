@@ -18,43 +18,7 @@
 
 ## Stack
 
-<sub>Click a category.</sub>
-
-<details>
-<summary><img src="assets/stack-frontend.svg" alt="Frontend — 4 tools"></summary>
-
-<br>
-
-<img src="assets/stack-frontend-panel.svg" alt="TypeScript, React/Next.js, Tailwind CSS, Playwright">
-
-</details>
-
-<details>
-<summary><img src="assets/stack-backend.svg" alt="Backend — 4 tools"></summary>
-
-<br>
-
-<img src="assets/stack-backend-panel.svg" alt="Node.js, Payload CMS, REST/GraphQL, Jest">
-
-</details>
-
-<details>
-<summary><img src="assets/stack-data.svg" alt="Data — 3 tools"></summary>
-
-<br>
-
-<img src="assets/stack-data-panel.svg" alt="PostgreSQL, MongoDB, Redis">
-
-</details>
-
-<details>
-<summary><img src="assets/stack-ship.svg" alt="Ship — 4 tools"></summary>
-
-<br>
-
-<img src="assets/stack-ship-panel.svg" alt="Docker, GitHub Actions, Vercel, Sentry">
-
-</details>
+<img src="assets/stack.svg" width="880" alt="Frontend: TypeScript, React/Next.js, Tailwind CSS, Playwright. Backend: Node.js, Payload CMS, REST/GraphQL, Jest. Data: PostgreSQL, MongoDB, Redis. Ship: Docker, GitHub Actions, Vercel, Sentry.">
 
 <br>
 

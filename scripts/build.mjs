@@ -461,87 +461,50 @@ function buildButton({ label, tone, w }) {
 
 /* ------------------------------------------------------------- tech stack */
 
-// Clicking a category expands its panel. Both halves are drawn as SVG because
-// GitHub strips CSS from markdown — a <summary> cannot be styled, but it will
-// render an <img> happily.
-const STACK = {
-  frontend: {
-    label: 'FRONTEND', tone: 'cyan',
-    items: [
-      ['TypeScript',      92, 'daily'],
-      ['React / Next.js', 88, 'daily'],
-      ['Tailwind CSS',    64, 'weekly'],
-      ['Playwright',      52, 'weekly'],
-    ],
-  },
-  backend: {
-    label: 'BACKEND', tone: 'purple',
-    items: [
-      ['Node.js',      86, 'daily'],
-      ['Payload CMS',  84, 'daily'],
-      ['REST / GraphQL', 70, 'weekly'],
-      ['Jest',         58, 'weekly'],
-    ],
-  },
-  data: {
-    label: 'DATA', tone: 'green',
-    items: [
-      ['PostgreSQL', 78, 'daily'],
-      ['MongoDB',    54, 'occasional'],
-      ['Redis',      42, 'occasional'],
-    ],
-  },
-  ship: {
-    label: 'SHIP', tone: 'amber',
-    items: [
-      ['Docker',         66, 'weekly'],
-      ['GitHub Actions', 62, 'weekly'],
-      ['Vercel',         55, 'weekly'],
-      ['Sentry',         48, 'weekly'],
-    ],
-  },
-};
+// Four lines, one per area. No interaction, no arrows — just the list.
+const STACK = [
+  ['FRONTEND', 'cyan',   ['TypeScript', 'React / Next.js', 'Tailwind CSS', 'Playwright']],
+  ['BACKEND',  'purple', ['Node.js', 'Payload CMS', 'REST / GraphQL', 'Jest']],
+  ['DATA',     'green',  ['PostgreSQL', 'MongoDB', 'Redis']],
+  ['SHIP',     'amber',  ['Docker', 'GitHub Actions', 'Vercel', 'Sentry']],
+];
 
-const TONE = {
-  cyan:   { fg: C.cyan,   bd: '#1f4f55' },
-  purple: { fg: C.purple, bd: '#3d2d5c' },
-  green:  { fg: C.green,  bd: '#1f4d2b' },
-  amber:  { fg: C.amber,  bd: '#5c4416' },
-};
+const TONE = { cyan: C.cyan, purple: C.purple, green: C.green, amber: C.amber };
 
-function buildStackButton({ label, tone, items }) {
-  const t = TONE[tone], FS = 13, H = 42;
-  const W = Math.round(label.length * FS * 0.62 + 96);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label} stack, ${items.length} tools">
-<style>text{font-family:${MONO}} .c{animation:p 2.8s ease-in-out infinite} @keyframes p{0%,100%{opacity:.5}50%{opacity:1}}</style>
-<rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="8" fill="${C.surfaceBtn}" stroke="${t.bd}"/>
-<text x="16" y="${H / 2 + 5}" font-size="${FS}" fill="${t.fg}" class="c">\u25b8</text>
-<text x="33" y="${H / 2 + 5}" font-size="${FS}" fill="${t.fg}" letter-spacing="1.6" font-weight="600">${label}</text>
-<text x="${W - 16}" y="${H / 2 + 5}" font-size="11" fill="${C.dim}" text-anchor="end">${items.length}</text>
-</svg>
-`;
-}
+function buildStack() {
+  const W = 880, LH = 36, TOP = 46, LX = 34, TX = 168;
+  const H = TOP + (STACK.length - 1) * LH + 40;
 
-function buildStackPanel({ label, tone, items }) {
-  const t = TONE[tone];
-  const W = 660, ROW = 34, PAD = 22;
-  const H = PAD * 2 + items.length * ROW;
   let o = '';
-  items.forEach(([name, pct, cadence], i) => {
-    const y = PAD + 22 + i * ROW;
-    const bw = 300, bx = 210;
-    const fill = (pct / 100) * bw;
-    o += `<text x="${PAD}" y="${y}" font-size="12.5" fill="${C.text}">${esc(name)}</text>`;
-    o += `<rect x="${bx}" y="${y - 8}" width="${bw}" height="7" rx="3.5" fill="${C.surfaceBtn}"/>`;
-    o += `<rect x="${bx}" y="${y - 8}" width="0" height="7" rx="3.5" fill="${t.fg}">` +
-         `<animate attributeName="width" from="0" to="${fill.toFixed(1)}" dur="0.8s" ` +
-         `begin="${(0.1 + i * 0.09).toFixed(2)}s" fill="freeze" calcMode="spline" ` +
-         `keySplines="0.2 0.8 0.3 1" keyTimes="0;1" values="0;${fill.toFixed(1)}"/></rect>`;
-    o += `<text x="${bx + bw + 14}" y="${y}" font-size="11" fill="${C.dim}">${esc(cadence)}</text>`;
+  STACK.forEach(([label, tone, items], i) => {
+    const y = TOP + i * LH;
+    o += `<g class="ln" style="animation-delay:${(0.12 + i * 0.11).toFixed(2)}s">`;
+    o += `<text x="${LX}" y="${y}" font-size="11.5" fill="${TONE[tone]}" ` +
+         `letter-spacing="2.2" font-weight="600">${label}</text>`;
+
+    // Tools flow on one line, separated by a dim interpunct.
+    let x = TX;
+    items.forEach((name, j) => {
+      if (j) {
+        o += `<text x="${x.toFixed(1)}" y="${y}" font-size="13" fill="${C.dim}">·</text>`;
+        x += 16;
+      }
+      o += `<text x="${x.toFixed(1)}" y="${y}" font-size="13" fill="${C.text}">${esc(name)}</text>`;
+      x += name.length * 7.8 + 10;
+    });
+    o += `</g>`;
   });
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label} tools">
-<style>text{font-family:${MONO}}</style>
-<rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="9" fill="${C.bg}" stroke="${C.line ?? C.border}"/>
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${MONO}" role="img" aria-label="Stack: ${STACK.map(([l, , it]) => `${l} — ${it.join(', ')}`).join('; ')}">
+<style>
+  text { font-family: ${MONO}; }
+  /* No opacity:0 at rest. If the animation never applies, the text still
+     shows — the resting state must be the visible one. */
+  .ln { animation: lineIn .5s ease-out both; }
+  @keyframes lineIn { from { opacity: 0; transform: translateX(-7px) } }
+</style>
+<rect width="${W}" height="${H}" rx="12" fill="${C.bg}"/>
+<rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="12" fill="none" stroke="${C.border}"/>
 ${o}
 </svg>
 `;
@@ -552,10 +515,7 @@ ${o}
 if (!existsSync(ASSETS)) mkdirSync(ASSETS, { recursive: true });
 
 const out = { 'hero.svg': buildHero() };
-for (const [id, cfg] of Object.entries(STACK)) {
-  out[`stack-${id}.svg`] = buildStackButton(cfg);
-  out[`stack-${id}-panel.svg`] = buildStackPanel(cfg);
-}
+out['stack.svg'] = buildStack();
 for (const [name, svg] of Object.entries(out)) {
   writeFileSync(join(ASSETS, name), svg);
   console.log(`  ${name.padEnd(14)} ${(svg.length / 1024).toFixed(1)} kB`);
