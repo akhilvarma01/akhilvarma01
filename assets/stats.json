@@ -2,14 +2,14 @@
   "name": "AKHIL VARMA ALLURI",
   "title": "Application Developer, Elastic Suite",
   "topLanguage": "TypeScript",
-  "xp": 494,
-  "syncedAt": "2026-08-21 10:07 UTC",
+  "xp": 502,
+  "syncedAt": "2026-08-22 03:34 UTC",
   "source": "source: GraphQL contributionsCollection (incl. private)",
   "stats": [
     {
       "label": "SHIP",
-      "value": 48,
-      "from": "145 commits, public and private",
+      "value": 51,
+      "from": "153 commits, public and private",
       "color": "#39d0d8"
     },
     {
@@ -39,7 +39,7 @@
     {
       "label": "REACH",
       "value": 20,
-      "from": "2 followers \u00b7 0 stars (public only)",
+      "from": "2 followers · 0 stars (public only)",
       "color": "#d29922"
     }
   ],
@@ -67,39 +67,40 @@
   ],
   "achievements": [
     {
-      "icon": "\ud83c\udf31",
+      "icon": "🌱",
       "label": "Account 8 years old",
       "color": "#3fb950",
       "unlocked": true
     },
     {
-      "icon": "\ud83d\udc40",
+      "icon": "👀",
       "label": "100 reviews",
       "color": "#39d0d8",
       "unlocked": true
     },
     {
-      "icon": "\ud83d\udcc8",
+      "icon": "📈",
       "label": "500 contributions",
       "color": "#bc8cff",
-      "unlocked": false
+      "unlocked": true
     },
     {
-      "icon": "\ud83d\udd25",
+      "icon": "🔥",
       "label": "7-day streak",
       "color": "#d29922",
       "unlocked": true
     },
     {
-      "icon": "\u2b50",
+      "icon": "⭐",
       "label": "First star",
       "color": "#d29922",
       "unlocked": false
     }
   ],
   "raw": {
-    "total": 494,
-    "commits": 145,
+    "total": 502,
+    "commits": 153,
+    "restricted": 0,
     "prs": 166,
     "reviews": 181,
     "issues": 0,
@@ -107,7 +108,6 @@
     "stars": 0,
     "followers": 2,
     "range": 6,
-    "accountYears": 8,
-    "restricted": 0
+    "accountYears": 8
   }
 }
