@@ -3,7 +3,7 @@
   "title": "Application Developer, Elastic Suite",
   "topLanguage": "TypeScript",
   "xp": 425,
-  "syncedAt": "2026-10-27 08:29 UTC",
+  "syncedAt": "2026-10-28 09:08 UTC",
   "source": "source: GraphQL contributionsCollection (incl. private)",
   "stats": [
     {
@@ -38,8 +38,8 @@
     },
     {
       "label": "REACH",
-      "value": 30,
-      "from": "3 followers · 0 stars (public only)",
+      "value": 20,
+      "from": "2 followers · 0 stars (public only)",
       "color": "#d29922"
     }
   ],
@@ -106,7 +106,7 @@
     "issues": 0,
     "streak": 5,
     "stars": 0,
-    "followers": 3,
+    "followers": 2,
     "range": 6,
     "accountYears": 9
   }
