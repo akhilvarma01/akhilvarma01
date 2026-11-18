@@ -2,8 +2,8 @@
   "name": "AKHIL VARMA ALLURI",
   "title": "Application Developer, Elastic Suite",
   "topLanguage": "TypeScript",
-  "xp": 411,
-  "syncedAt": "2026-11-17 11:20 UTC",
+  "xp": 409,
+  "syncedAt": "2026-11-18 10:53 UTC",
   "source": "source: GraphQL contributionsCollection (incl. private)",
   "stats": [
     {
@@ -15,13 +15,13 @@
     {
       "label": "REVIEW",
       "value": 52,
-      "from": "130 pull requests reviewed",
+      "from": "129 pull requests reviewed",
       "color": "#39d0d8"
     },
     {
       "label": "PRS",
       "value": 70,
-      "from": "140 pull requests opened",
+      "from": "139 pull requests opened",
       "color": "#39d0d8"
     },
     {
@@ -98,11 +98,11 @@
     }
   ],
   "raw": {
-    "total": 411,
+    "total": 409,
     "commits": 139,
     "restricted": 0,
-    "prs": 140,
-    "reviews": 130,
+    "prs": 139,
+    "reviews": 129,
     "issues": 0,
     "streak": 5,
     "stars": 0,
